@@ -43,6 +43,10 @@
             background-color: #F2DEDE;
         }
 
+        .error {
+            color: red;
+        }
+
     </style>
 
 </head>
@@ -88,6 +92,7 @@
 
             hub.client.reportTransaction = function (transactionId, creditCardNumber, expirationDate) {
 
+                var transactionClass = "";
                 var rowClass = "approved";
                 var status = "Approved";
 
@@ -98,7 +103,12 @@
 
                 var dataContent = "<b>Date:</b> 3/17/2013<br/><b>Time:</b> 12:03 pm<br/><b>Device Id: </b>1234567AB<br/><b>URL: </b>http://SomeStore.com/<br/><b>IP: </b>127.0.0.1<br/><b>User Id: </b>12345";
 
-                var row = $("<tr class='" + rowClass + "'><td><a data-content='" + dataContent + "' href='#'>" + transactionId + "</a></td><td>" + creditCardNumber + "</td><td>" + expirationDate + "</td><td>" + status + "</td></tr>").hide();
+                if (creditCardNumber == "") {
+                    status = "<a href='#' data-placement='bottom' data-content='<b>Exception: </b>Some Exception occurred and this is where that information would go.'>Exception</a>";
+                    transactionClass = "error";
+                }
+
+                var row = $("<tr class='" + rowClass + "'><td><a class='" + transactionClass + "' data-content='" + dataContent + "' href='#'>" + transactionId + "</a></td><td>" + creditCardNumber + "</td><td>" + expirationDate + "</td><td>" + status + "</td></tr>").hide();
                 $('#report tr:last').after(row);
                 row.fadeIn(1000);
                 row.flash('223,240,216', 1000);
