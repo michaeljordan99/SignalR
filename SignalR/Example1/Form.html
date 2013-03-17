@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet" />
+
+    <style>
+
+        body {
+            padding: 20px;
+        }
+
+        fieldset {
+          padding: 1em;
+          font:80%/1 sans-serif;
+        }
+
+        label {
+          display: inline-block;
+          margin-right:0.5em;
+          padding-top:0.2em;
+          text-align:right;
+          font-weight:bold;
+        }
+
+        span {
+            font-size: large;
+        }
+
+        .approved {
+            color: green;
+            font-size: small;
+        }
+
+        .declined {
+            color: red;
+            font-size: small;
+        }
+
+    </style>
+</head>
+<body>
+
+    <form>
+
+        <fieldset>
+            <legend></legend>
+            <label for="name">Credit Card Number</label><br />
+            <input type="text" name="creditCardNumber" id="creditCardNumber" />
+            <br />
+            <label for="name">Expiration Date</label><br />
+            <select style="width: 75px;" id="month">
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>&nbsp;
+            <select style="width: 100px;" id="year">
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+            </select>
+            <br />
+            <label for="mail">Billing Address</label><br />
+            <input type="text" name="address" id="address" />
+            <br />
+            <label for="address">City</label><br />
+            <input type="text" name="city" id="city" size="40" />
+            <br />
+            <label for="address">State</label><br />
+            <input type="text" name="state" id="state" size="30" />
+            <br />
+            <label for="address">Zip</label><br />
+            <input type="text" name="zip" id="zip" size="40" />
+            <br />
+            <button id="save" onclick="return false;">Save</button><br /><br /><br />
+            <span id="transactionId"></span>
+
+        </fieldset>
+
+    </form>
+
+    <script src="../Scripts/jquery-1.9.1.js"></script>
+    <script src="../Scripts/jquery-ui-1.9.2.js"></script>
+    <script src="../Scripts/jquery.signalR-1.0.1.js"></script>
+    <script src="/signalr/hubs"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+         
+            // the generated client-side hub proxy
+            var hub = $.connection.processTransaction,
+                $save = $("#save");
+
+            //This is what's listening to the Server ...
+            hub.client.reportTransaction = function (transactionId, creditCardNumber, expirationDate) {
+                var cssClass = "approved";
+                if (creditCardNumber == 1) cssClass = "declined";
+                var transaction = "Transaction Id: <span class=" + cssClass + ">" + transactionId + "</span>";
+                $("#transactionId").hide().html(transaction).fadeIn('slow');
+            };
+
+            $.connection.hub.start().done(function () {
+
+                $save.on("click", function (event) {
+
+                    var creditCardNumber = $("#creditCardNumber").val();
+                    var expirationDate = $("#month").val() + "/" + $("#year").val();
+
+                    //This calls and updates the Server updateReport...
+                    hub.server.processTransaction(creditCardNumber, expirationDate);
+
+                    //Reset Form.
+                    $("input").val('');
+                    $("#month").val(1);
+                    $("#year").val(2012)
+
+                });
+            });
+        });
+
+    </script>
+
+</body>
+</html>

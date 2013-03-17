@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet" />
+
+        <style>
+
+        body {
+            padding: 20px;
+        }
+
+        #report {
+
+        }
+
+        #transactionId {
+            width: 300px;
+        }
+
+        #creditCardNumber {
+            width: 250px;
+        }
+
+        #expirationDate {
+            width: 150px;
+        }
+
+        #status {
+            width: 150px;
+        }
+
+        th {
+            background-color: #f1eeee;
+            color: #646565;
+        }
+
+        h2 {
+            font-size: large;
+        }
+
+        tr.declined > td {
+            background-color: #F2DEDE;
+        }
+
+    </style>
+
+</head>
+<body>
+
+     <h2>Transaction Report</h2>
+    <div id="report">
+        <table border="1" class="table">
+            <thead>
+                <tr>
+                    <th id="transactionId">Transaction Id</th>
+                    <th id="creditCardNumber">Credit Card Number</th>
+                    <th id="expirationDate">Expiration Date</th>
+                    <th id="status">Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="../Scripts/jquery-1.9.1.js"></script>
+    <script src="../Scripts/jquery-ui-1.9.2.js"></script>
+    <script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-tooltip.js"></script>
+    <script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-popover.js"></script>
+    <script src="../Scripts/jquery.signalR-1.0.1.js"></script>
+    <script src="/signalr/hubs"></script>
+ 
+    <script type="text/javascript">
+
+
+        // A simple background color flash effect that uses jQuery Color plugin
+        jQuery.fn.flash = function (color, duration) {
+            var current = this.css('backgroundColor');
+            this.animate({ backgroundColor: 'rgb(' + color + ')' }, duration / 2)
+                .animate({ backgroundColor: current }, duration / 2);
+        }
+
+        $(function () {
+            
+            // the generated client-side hub proxy
+            var hub = $.connection.processTransaction,
+                $report = $("#report");
+
+            hub.client.reportTransaction = function (transactionId, creditCardNumber, expirationDate) {
+
+                var rowClass = "approved";
+                var status = "Approved";
+
+                if (creditCardNumber == 1) {
+                    status = "<a href='#' data-placement='bottom' data-content='<b>Reason: </b>In-Valid Expiration Date.'>Declined</a>";
+                    rowClass = "declined";
+                }
+
+                var dataContent = "<b>Date:</b> 3/17/2013<br/><b>Time:</b> 12:03 pm<br/><b>Device Id: </b>1234567AB<br/><b>URL: </b>http://SomeStore.com/<br/><b>IP: </b>127.0.0.1<br/><b>User Id: </b>12345";
+
+                var row = $("<tr class='" + rowClass + "'><td><a data-content='" + dataContent + "' href='#'>" + transactionId + "</a></td><td>" + creditCardNumber + "</td><td>" + expirationDate + "</td><td>" + status + "</td></tr>").hide();
+                $('#report tr:last').after(row);
+                row.fadeIn(1000);
+                row.flash('223,240,216', 1000);
+
+                $('tr').hover(function () {
+                    $(this).css('background-color', '#FAF7F8');
+                },
+                function () {
+                    $(this).css('background-color', '#FFFFFF');
+                });
+
+                $("a").popover({ html : true });
+            };
+
+            $.connection.hub.start();
+        });
+
+    </script>
+</body>
+</html>
